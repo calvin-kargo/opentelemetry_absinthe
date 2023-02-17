@@ -43,6 +43,15 @@ defmodule OpentelemetryAbsintheTest.BatchInstrumentation do
       assert data(attributes)[:"graphql.batch.function"] == "Elixir.AbsinthePlug.Test.Schema batch_get_profile_picture"
       assert span(data, :name) == :"absinthe graphql batch Elixir.AbsinthePlug.Test.Schema batch_get_profile_picture"
     end
+
+    test "additional attributes are included in spans" do
+      additional_attributes = [env: "test"]
+      OpentelemetryAbsinthe.BatchInstrumentation.setup(additional_attributes: additional_attributes)
+      {:ok, _} = Absinthe.run(@query, Schema, variables: %{"isbn" => "A1"})
+      assert_receive {:span, span(attributes: attributes)}, 5000
+
+      assert data(attributes)[:env] == "test"
+    end
   end
 
   defp keys(attributes_record), do: attributes_record |> elem(4) |> Map.keys()

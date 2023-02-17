@@ -78,6 +78,21 @@ defmodule OpentelemetryAbsintheTest.ResolveInstrumentation do
                  span(data, :name) == :"absinthe graphql resolve comments"
              end)
     end
+
+    test "additional attributes are included in spans" do
+      additional_attributes = [env: "test"]
+      OpentelemetryAbsinthe.ResolveInstrumentation.setup(additional_attributes: additional_attributes)
+      {:ok, _} = Absinthe.run(@nested_query, Schema, variables: %{"isbn" => "A1"})
+      assert_receive {:span, data1}, 5000
+      assert_receive {:span, data2}, 5000
+
+      spans = [data1, data2]
+
+      assert Enum.all?(spans, fn data ->
+               attributes = span(data, :attributes)
+               data(attributes)[:env] == "test"
+             end)
+    end
   end
 
   defp data(attributes_record), do: attributes_record |> elem(4)

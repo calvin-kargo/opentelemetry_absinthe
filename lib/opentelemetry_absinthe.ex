@@ -3,9 +3,9 @@ defmodule OpentelemetryAbsinthe do
   OpentelemetryAbsinthe is an opentelemetry instrumentation library for Absinthe
   """
 
-  def setup() do
-    OpentelemetryAbsinthe.Instrumentation.setup()
-    OpentelemetryAbsinthe.ResolveInstrumentation.setup()
-    OpentelemetryAbsinthe.BatchInstrumentation.setup()
+  def setup(opts \\ []) do
+    OpentelemetryAbsinthe.Instrumentation.setup(opts)
+    OpentelemetryAbsinthe.ResolveInstrumentation.setup(opts)
+    OpentelemetryAbsinthe.BatchInstrumentation.setup(opts)
   end
 end
