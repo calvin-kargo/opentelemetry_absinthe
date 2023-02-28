@@ -20,7 +20,8 @@ defmodule OpentelemetryAbsinthe.Instrumentation do
     trace_request_query: true,
     trace_request_variables: true,
     trace_response_result: false,
-    trace_response_errors: true
+    trace_response_errors: true,
+    additional_attributes: %{}
   ]
 
   def setup(instrumentation_opts \\ []) do
@@ -54,7 +55,8 @@ defmodule OpentelemetryAbsinthe.Instrumentation do
     params = metadata |> Map.get(:options, []) |> Keyword.get(:params, %{})
 
     attributes =
-      %{}
+      config.additional_attributes
+      |> Map.new()
       |> put_if(
         config.trace_request_variables,
         :"graphql.request.variables",

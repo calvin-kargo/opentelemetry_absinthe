@@ -13,7 +13,8 @@ defmodule OpentelemetryAbsinthe.ResolveInstrumentation do
   @tracer_id __MODULE__
 
   @default_config [
-    resolve_span_name: "absinthe graphql resolve"
+    resolve_span_name: "absinthe graphql resolve",
+    additional_attributes: %{}
   ]
 
   def setup(instrumentation_opts \\ []) do
@@ -53,12 +54,16 @@ defmodule OpentelemetryAbsinthe.ResolveInstrumentation do
       |> Enum.filter(fn path -> not is_integer(path) end)
       |> Enum.map(fn field -> safe_string_to_atom(field) end)
 
-    attributes = %{
-      "graphql.field.name": safe_string_to_atom(metadata.resolution.definition.name),
-      "graphql.field.alias": safe_string_to_atom(metadata.resolution.definition.alias),
-      "graphql.full_field_path": full_field_path,
-      "graphql.name_field_path": name_field_path
-    }
+    additional_attributes = Map.new(config.additional_attributes)
+
+    attributes =
+      %{
+        "graphql.field.name": safe_string_to_atom(metadata.resolution.definition.name),
+        "graphql.field.alias": safe_string_to_atom(metadata.resolution.definition.alias),
+        "graphql.full_field_path": full_field_path,
+        "graphql.name_field_path": name_field_path
+      }
+      |> Map.merge(additional_attributes)
 
     execution_ctx =
       OpentelemetryAbsinthe.Registry.get_absinthe_execution_span() || OpenTelemetry.Tracer.current_span_ctx()
